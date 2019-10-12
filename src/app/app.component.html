@@ -1,3 +1,44 @@
-<p>{{Pictures.filename}}</p>
-<p>{{timeNow}}</p>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
 
+<!--
+    <div class="container-fluid">
+
+<p>{{Pictures.filename}}</p>
+
+</div>
+-->
+<p class="gcal">
+<app-g-cal></app-g-cal>
+</p>
+
+<!--
+<div [@openClose]="isOpen ? 'open' : 'closed'" class="open-close-container">
+        <p>The box is now {{ isOpen ? 'Open' : 'Closed' }}!</p>
+</div>
+<button (click)="toggle()">Toggle Open/Close</button>
+-->
+
+<div class="picinfo">
+    <div class="picinfotext">
+        <h2 class="body-1">
+            {{imageDate}}
+        </h2>
+    </div>
+</div>
+
+<div class="info">
+        <h1 class="display-2">
+            <p>{{timeNow}}</p>
+        </h1>
+    <p>{{countdown}}</p>
+    <button (click)="pauseShift()">{{txtPause}}</button>
+    <label>{{lblPlayPause}}</label>
+    <p class="body-1">
+        {{summary}}
+    </p>
+    
+</div>
+<div class="picture">
+   <!-- <img src="{{ currentImage }}" (click)="addEvent();">-->
+   <img src="{{ currentImage }}">
+</div>

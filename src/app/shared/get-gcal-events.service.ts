@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { pictures } from './pictures';
+import { gcalevents } from './gcalevents';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { CONFIG } from '../../assets/settings';
@@ -9,7 +9,7 @@ import { CONFIG } from '../../assets/settings';
 @Injectable({
   providedIn: 'root'
 })
-export class RestApiService {
+export class GcalService {
   constructor(private http: HttpClient) { }
 
   httpOptions = {
@@ -18,12 +18,11 @@ export class RestApiService {
     })
   }  
 
-  getPictures(): Observable<pictures> {
-    return this.http.get<pictures>(CONFIG.imageurl+'pics.php')
-
+  getGcalEvents(): Observable<gcalevents> {
+    return this.http.get<gcalevents>(CONFIG.gcalUrl)
     .pipe(
       retry(1),
-      catchError(this.handleError)
+      catchError(this.handleError),
     )
   }
 

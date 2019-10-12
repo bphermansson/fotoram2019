@@ -1,3 +1,6 @@
+// Inspired by https://www.positronx.io/angular-7-httpclient-http-service/
+
+
 # AngularHttpclientApp
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.2.

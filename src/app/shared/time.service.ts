@@ -14,7 +14,8 @@ export class TimeService {
 
   getTime(): Observable<any[]> {
     this.now = new Date();
-    this.hmtime = formatDate(this.now, "HH:mm:ss", "en" );
+    //this.hmtime = formatDate(this.now, "HH:mm:ss", "en" );
+    this.hmtime = formatDate(this.now, "HH:mm", "en" );
     return of(this.hmtime);
   }
 }
