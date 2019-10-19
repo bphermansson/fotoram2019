@@ -1,9 +1,14 @@
+// https://sclausen.github.io/ngx-mqtt/
+
+// ng build --prod  --base-href newPicFrame
 
 import { interval, Subscription } from 'rxjs';
 import { RestApiService } from "./shared/picturesGet";
 import { TimeService } from "./shared/time.service";
 import { GcalService} from "./shared/get-gcal-events.service"
-import { Component, HostBinding } from '@angular/core';
+import { Component, HostBinding, ɵConsole } from '@angular/core';
+import { Observable } from 'rxjs';
+
 import {
   trigger,
   state,
@@ -39,9 +44,8 @@ import { CONFIG } from '../assets/settings';
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-
-
 })
+
 export class AppComponent {
   title = 'angular-httpclient-app';
   Pictures: any = [];
@@ -63,6 +67,13 @@ export class AppComponent {
 
   isOpen = true;
 
+  item: any;
+  summary: any;
+  eventdate: any;
+  
+  private subscription: Subscription;
+  public message: string;
+
   toggle() {
     this.isOpen = !this.isOpen;
   }
@@ -71,7 +82,8 @@ export class AppComponent {
     public restApi: RestApiService,
     public TimeApi: TimeService,
     public GcalApi: GcalService,
-    ) { }
+    ) {
+     }
 
 ngOnInit() {
   // Start with two pictures
@@ -89,18 +101,34 @@ ngOnInit() {
   this.timesubscription = timesource.subscribe(val => this.getTime()); 
 }
 
-item: any;
-summary: any;
-
-//olddata: {};
+itemslist = []
 
 loadgcalEvents(){
   return this.GcalApi.getGcalEvents().subscribe((data: {}) => {
     this.gcalevents = data;
-    //console.log("gcal: " + this.gcalevents)
-    this.summary = this.gcalevents.Events[1][1];
 
-    console.log("gcal: " + this.summary)
+    //console.log("gcal: " + this.gcalevents[0])
+    //console.log("gcal: " + this.gcalevents[0].summary)
+    
+    for (var x in this.gcalevents) {
+      //console.log("gcal: " + this.gcalevents[x].summary)
+      var start = new Date (this.gcalevents[x].start) 
+      var startYear = start.getFullYear();
+      var sstartYear = startYear.toString()
+      var startMonth = start.getMonth() + 1
+      var sstartMonth = startMonth.toString()
+      var startDay = fixZeroes(start, "day")  // Day with trailing zeroes
+      var startHour = start.getHours()
+      var sstartHour = startHour.toString()
+      var startMin = fixZeroes(start, "minute") // Minutes with trailing zeroes
+    
+      var sum = this.gcalevents[x].summary
+
+      var items = sstartYear + sstartMonth + startDay + " - " + sstartHour + ":" + startMin
+      items = items + "\n"
+      items = items + sum
+      this.itemslist.push(items)
+    }
   })
 }
 
@@ -127,8 +155,8 @@ loadPictures() {
     this.currentImage = CONFIG.imageurl + this.Pictures.filename
     this.imageDate = this.Pictures.date
 
-    console.log(this.currentImage)
-    console.log(this.imageDate)
+    //console.log(this.currentImage)
+    //console.log(this.imageDate)
     
     // Create list
     this.piclist.push(this.Pictures.filename);
@@ -169,4 +197,21 @@ pauseShift(){
   }
 }
 
+}
+
+/*
+function day_of_the_month(d)
+{ 
+  return (d.getDate() < 10 ? '0' : '') + d.getDate();
+}
+*/
+function fixZeroes(cdate, what)
+{ 
+  switch(what) {
+    case "day":
+      return (cdate.getDate() < 10 ? '0' : '') + cdate.getDate();
+      break
+    case "minute":
+        return (cdate.getMinutes() < 10 ? '0' : '') + cdate.getMinutes();
+  }
 }

@@ -1,5 +1,12 @@
 // Inspired by https://www.positronx.io/angular-7-httpclient-http-service/
 
+// Deploy
+//ng build --prod  --base-href newPhotoFrame
+ng build --prod  --base-href newPFTest
+
+Now after you copying the files from your dist folder to apache servers root folder /var/www/html the project will work until you refresh the page
+
+Styling: https://material.angular.io/guide/typography
 
 # AngularHttpclientApp
 
@@ -29,3 +36,4 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 # angular-httpclient-app
+# fotoram2019

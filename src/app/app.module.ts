@@ -7,6 +7,17 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { GCalComponent } from './g-cal/g-cal.component';
 
+import {
+  IMqttMessage,
+  MqttModule,
+  IMqttServiceOptions
+} from 'ngx-mqtt';
+
+export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
+  hostname: '192.168.1.190',
+  port: 9001,
+  path: '/mqtt'
+};
 
 @NgModule({
   declarations: [
@@ -16,7 +27,8 @@ import { GCalComponent } from './g-cal/g-cal.component';
   imports: [
     BrowserModule,
     HttpClientModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MqttModule.forRoot(MQTT_SERVICE_OPTIONS)
   ],
   providers: [],
   bootstrap: [AppComponent]

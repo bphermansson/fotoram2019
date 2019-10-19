@@ -3,6 +3,10 @@ body, html {
     margin: 0;
 }
  
+li {
+  list-style-type: none;
+}
+
 .info {
     background: rgba(54, 25, 25, .5);
     width:230px;
@@ -18,7 +22,7 @@ body, html {
   
 .picinfo {
     background: rgba(54, 25, 25, .5);
-    width:190px;
+    width:220px;
     height: 50px;
     position: absolute;
     top: 15px;

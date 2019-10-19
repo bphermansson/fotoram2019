@@ -20,9 +20,9 @@
 
 <div class="picinfo">
     <div class="picinfotext">
-        <h2 class="body-1">
+        <h1 class="headline">
             {{imageDate}}
-        </h2>
+        </h1>
     </div>
 </div>
 
@@ -34,7 +34,9 @@
     <button (click)="pauseShift()">{{txtPause}}</button>
     <label>{{lblPlayPause}}</label>
     <p class="body-1">
-        {{summary}}
+        <li *ngFor="let item of itemslist">
+            {{ item }}
+          </li>
     </p>
     
 </div>
