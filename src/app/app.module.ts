@@ -12,6 +12,7 @@ import {
   MqttModule,
   IMqttServiceOptions
 } from 'ngx-mqtt';
+import { TempComponent } from './temp/temp.component';
 
 export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
   hostname: '192.168.1.190',
@@ -23,6 +24,7 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
   declarations: [
     AppComponent,
     GCalComponent,
+    TempComponent,
   ],
   imports: [
     BrowserModule,

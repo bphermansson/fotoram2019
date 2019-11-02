@@ -7,10 +7,11 @@
 
 </div>
 -->
+<!--
 <p class="gcal">
 <app-g-cal></app-g-cal>
 </p>
-
+-->
 <!--
 <div [@openClose]="isOpen ? 'open' : 'closed'" class="open-close-container">
         <p>The box is now {{ isOpen ? 'Open' : 'Closed' }}!</p>
@@ -18,6 +19,8 @@
 <button (click)="toggle()">Toggle Open/Close</button>
 -->
 
+<!-- Just show this if we have info about the picture-->
+<ng-container *ngIf="showInfo">
 <div class="picinfo">
     <div class="picinfotext">
         <h1 class="headline">
@@ -25,22 +28,54 @@
         </h1>
     </div>
 </div>
+</ng-container>
+
 
 <div class="info">
-        <h1 class="display-2">
-            <p>{{timeNow}}</p>
-        </h1>
+    <h1 class="display-2">
+        <p>{{timeNow}}</p>
+    </h1>
+    <h2 class=".mat-h2">
+        <p>Ute: {{tempOut}}C</p>
+    </h2>
+
     <p>{{countdown}}</p>
     <button (click)="pauseShift()">{{txtPause}}</button>
     <label>{{lblPlayPause}}</label>
-    <p class="body-1">
+    
+    <p class="subheading-1">
         <li *ngFor="let item of itemslist">
-            {{ item }}
+            <hr class="divider">
+            <p>{{ item.start}} - {{ item.end}}</p>
+            <h3>{{ item.summary }}</h3>
+            <p>{{ item.line_marker }}</p>
+                        
           </li>
     </p>
-    
 </div>
+<!-- Original
 <div class="picture">
-   <!-- <img src="{{ currentImage }}" (click)="addEvent();">-->
    <img src="{{ currentImage }}">
+   [@fade]="isVisible ? 'visible' : 'invisible'"
+   (click)="toggle()"
 </div>
+-->
+
+<!--
+<div [ngStyle]="{'background-image': 'url(' + currentImage + ')'  }"
+  class="picture"
+  [@fade]="isVisible ? 'visible' : 'invisible'"
+
+>
+</div>
+-->
+
+
+<!--This displays an image 'fullscreen' without stretching or cutting-->
+<div [ngStyle]="{'background-image': 'url(' + currentImage + ')', 
+  'background-size': 'cover'  }"
+  class="picture"
+  [@fade]="isVisible ? 'visible' : 'invisible'"
+  (@fade.done)="animEnd($event)"
+  (click)="toggle()"
+  >

@@ -1,8 +1,24 @@
+/*
 body, html {
     height: 100%;
     margin: 0;
 }
- 
+*/
+html, body{
+  height: 100%;
+}
+
+<!-- The scaling is wrong for high images
+
+body { 
+  background-image: url(http://ppcdn.500px.org/75319705/1991f76c0c6a91ae1d23eb94ac5c7a9f7e79c480/2048.jpg) ;
+  background-position: center center;
+  background-repeat:  no-repeat;
+  background-attachment: fixed;
+  background-size:  cover;
+  background-color: #999;
+}
+
 li {
   list-style-type: none;
 }
@@ -17,20 +33,20 @@ li {
     z-index: 2;
     color: white;
     /*font-size:xx-large;*/
-    padding: 5px;
+    padding: 8px;
   }
   
 .picinfo {
     background: rgba(54, 25, 25, .5);
-    width:220px;
-    height: 50px;
+    width:240px;
+    height: 55px;
     position: absolute;
     top: 15px;
     left: 15px;
     z-index: 2;
     color: white;
     /*font-size:xx-large;*/
-    padding: 5px;
+    padding: 8px;
     text-align: center
   }
   .picinfotext {
@@ -51,12 +67,19 @@ li {
     right: 0;
     overflow: auto;
     background: lightskyblue; /* Just to visualize the extent */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+
   }
 
 .gcal {
   z-index: 10;
 }
 
+hr.divider {
+  border: 2px solid lightgrey;
+}
 
   .open-close-container {
     border: 1px solid #dddddd;
