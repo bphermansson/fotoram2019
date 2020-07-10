@@ -9,17 +9,19 @@ import { CONFIG } from '../../assets/settings';
 @Injectable({
   providedIn: 'root'
 })
-export class RestApiService {
+export class PictureApiService {
   constructor(private http: HttpClient) { }
 
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      method: 'GET', // GET, POST, PUT, DELETE
+      mode: 'no-cors' // the most important option
     })
   }  
 
   getPictures(): Observable<pictures> {
-    return this.http.get<pictures>(CONFIG.imageurl+'pics.php')
+    return this.http.get<pictures>(CONFIG.picsurl)
 
     .pipe(
       retry(1),

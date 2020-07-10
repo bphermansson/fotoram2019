@@ -40,9 +40,13 @@
     </h2>
 
     <p>{{countdown}}</p>
-    <button (click)="pauseShift()">{{txtPause}}</button>
-    <label>{{lblPlayPause}}</label>
-    
+    <mat-progress-bar mode="determinate" value={{countdown*2.5}}></mat-progress-bar>
+    <p>Gardenhouse: {{gardenhouseMoist}}</p>
+
+    <h2 class=".mat-h2">
+        <p>Tigern {{lmStatus}}</p>
+    </h2>
+
     <p class="subheading-1">
         <li *ngFor="let item of itemslist">
             <hr class="divider">

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PictureApiService } from './picturesGet';
+import { HadataService } from './hadata.service';
 
-describe('PictureApiService', () => {
+describe('HadataService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: PictureApiService = TestBed.get(PictureApiService);
+    const service: HadataService = TestBed.get(HadataService);
     expect(service).toBeTruthy();
   });
 });

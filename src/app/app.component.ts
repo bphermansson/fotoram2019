@@ -3,12 +3,13 @@
 // ng build --prod  --base-href newPicFrame
 
 import { interval, Subscription } from 'rxjs';
-import { RestApiService } from "./shared/picturesGet";
+import { PictureApiService } from "./shared/picturesGet";
 import { TimeService } from "./shared/time.service";
 import { GcalService} from "./shared/get-gcal-events.service"
 import { Component, HostBinding, ɵConsole } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TempApiService } from './shared/temp-api.service';
+import { HADataService } from "./shared/hadata.service";
 
 import {
   trigger,
@@ -19,7 +20,7 @@ import {
 } from '@angular/animations';
 
 import { CONFIG } from '../assets/settings';
-import { share } from 'rxjs/operators';
+//import { share } from 'rxjs/operators';
 
 var debug = true
 
@@ -56,25 +57,25 @@ export class AppComponent {
   timesubscription: Subscription;
   eventsubscription: Subscription;
   tempOutsubscription: Subscription;
+  hasubscription: Subscription;
   c: number=0;
   lblPlayPause = 'Running'
   txtPause = 'Pause'
-
+  haData: any = [];
   picsource = interval(10*1000);  
   currentImage: any;   
   imageDate: any;
-
   gcalevents: any = []
   countdown=40;
   pictimer = 40 // 40 // How long to show images
   public showInfo:boolean = false;
-
   isOpen = true;
-
   item: any;
   summary: any;
   eventdate: any;
   isVisible = true;
+  temp: any;
+  lmStatus: string
 
   private subscription: Subscription;
   public message: string;
@@ -91,10 +92,11 @@ export class AppComponent {
   }
 
   constructor(    
-    public restApi: RestApiService,
+    public PictureApi: PictureApiService,
     public TimeApi: TimeService,
     public GcalApi: GcalService,
     private apiService: TempApiService,
+    public haApi: HADataService,
     ) {
      }
 
@@ -105,6 +107,7 @@ ngOnInit() {
   this.getTime();
   this.loadgcalEvents()
   this.getOutTemp()
+  this.getHaData()
 
   //this.picsubscription = this.picsource.subscribe(picval => this.loadPictures());
 
@@ -115,18 +118,81 @@ ngOnInit() {
   this.timesubscription = timesource.subscribe(val => this.getTime());
   const temptimersource = interval(60000);     
   this.tempOutsubscription = temptimersource.subscribe(val => this.getOutTemp()); 
+  const hadatasource = interval(10000);     
+  this.hasubscription = hadatasource.subscribe(val => this.getHaData()); 
+
 }
 
 itemslist = []  // Array
 line_marker: any
 
+
+getHaData() {
+  // Remember to adjust Home Assistant to allow connections from localhost(cors)
+  let sensors: string[] = [ 
+    "sensor.emontxv3ehyoutdoor_humidity",
+    "sensor.emontxv3ehybmp085_temperature",
+    "sensor.emontx_uv_light",
+    "sensor.gardenhouse_plant_moist",
+    "binary_sensor.lawnmowerincharger",
+    
+  ]
+  let x = {
+    state: "",
+  } 
+let list: string[] = [];
+
+  sensors.forEach(havalue => {
+    //console.log(havalue)
+
+//    let haResult = this.haApi.getHAData(havalue).subscribe((x : {}) => {
+      //console.log(x)  // All data from one sensor
+//      this.client.fetchUsers().subscribe((users: IUser[]) => {
+    this.haApi.getHAData(havalue).subscribe((x: string[]) => {
+      var ent = x.state
+      console.log(havalue + ": " + ent)
+      switch(havalue) {
+        case "emontxv3ehybmp085_temperature": 
+        {
+          this.temp = ent
+          break
+        }
+        case "binary_sensor.lawnmowerincharger":
+        {
+          this.updateLawnMowerState(ent);
+        }
+        default: {
+          break
+        }
+      }
+      //for ( var xs in  list) {
+        //console.log("X: " + list)
+      //}
+  });
+  //return haResult
+  return users
+  })
+}
+
+updateLawnMowerState(lmState)
+{
+  console.log("lmState: " + lmState)
+  if (lmState=="on") {
+    this.lmStatus = "vilar."
+  }
+  else {
+    this.lmStatus = "jobbar."
+  }
+  
+}
+
 loadgcalEvents(){
   return this.GcalApi.getGcalEvents().subscribe((data: {}) => {
     this.gcalevents = data;
 
-    //console.log("gcal: " + this.gcalevents[0])
+    console.log("gcal: " + this.gcalevents[0])
     //console.log("gcal: " + this.gcalevents[0].summary)
-    
+    /*
     for (var x in this.gcalevents) {
       //console.log("gcal: " + this.gcalevents[x].summary)
       var start = new Date (this.gcalevents[x].start) 
@@ -162,6 +228,7 @@ loadgcalEvents(){
       this.itemslist.push(eventObj) 
       //console.log("item" + this.itemslist[0].summary)
     }
+    */
   })
 }
 
@@ -177,7 +244,7 @@ getOutTemp() {
 }
 
 loadPictures() {
-  return this.restApi.getPictures().subscribe((data: {}) => {
+  return this.PictureApi.getPictures().subscribe((data: {}) => {
     this.Pictures = data;
     /*
     Store old picture path and new picture path to make it possible to rewind to previous image
@@ -192,6 +259,8 @@ loadPictures() {
     if (this.piclist.length > 1) {
       console.log("Overflow")
       this.piclist.shift()  // Shift out the oldest/first item
+      console.log("No of pics: " + this.piclist.length)
+
     }
 
     for (var x in this.piclist) {
@@ -200,7 +269,7 @@ loadPictures() {
     }
     
     //  In config: imageurl: "http://192.168.1.7/newPhotoFrame/",
-    this.currentImage = CONFIG.imageurl + this.Pictures.filename
+    this.currentImage = CONFIG.baseurl + "bilderFotoram/" + this.Pictures.filename
     this.imageDate = this.Pictures.date
     var imageHeight = this.Pictures.height
     var imageWidth = this.Pictures.width

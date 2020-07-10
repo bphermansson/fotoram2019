@@ -2,7 +2,15 @@
 
 // Deploy
 //ng build --prod  --base-href newPhotoFrame
-ng build --prod  --base-href newPFTest
+//ng build --prod  --base-href newPFTest
+
+Test: ng serve
+
+Deploy: 
+ng build --prod --base-href /bildvisare/
+
+npm install --save-dev @angular-devkit/build-angular
+
 
 Now after you copying the files from your dist folder to apache servers root folder /var/www/html the project will work until you refresh the page
 

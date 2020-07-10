@@ -1,4 +1,6 @@
 export let CONFIG = { 
-    imageurl: "http://192.168.1.7/newPhotoFrame/",
-    gcalUrl: "http://192.168.1.7:8000",
+    baseurl: "http://192.168.1.10/bildvisare/",
+    picsurl: "http://192.168.1.10/pics.php",
+    gcalUrl: "http://192.168.1.15:8080/api/GcalItems/getevents",
+    haurl: "http://192.168.1.10:8123/api/states/",
 }
