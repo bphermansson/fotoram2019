@@ -25,6 +25,7 @@ class HaClass {
   name: string;
 }
 
+@Injectable()
 export class HADataService {
   constructor(private http: HttpClient) { }
     getHAData(sensor): Observable<any> {
