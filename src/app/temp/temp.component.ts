@@ -12,8 +12,9 @@ export class TempComponent implements OnInit {
 
 
   ngOnInit() {
+    /*
     this.apiService.getTempOut().subscribe((data)=>{
       console.log(data);
- });
+ });*/
 }
 }

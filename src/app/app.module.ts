@@ -6,9 +6,9 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
-import { GCalComponent } from './g-cal/g-cal.component';
 import { HADataService } from './shared/hadata.service';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { GcalService } from './shared/get-gcal-events.service';
 
 
 import {
@@ -27,7 +27,6 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
 @NgModule({
   declarations: [
     AppComponent,
-    GCalComponent,
     TempComponent,
   ],
   imports: [
@@ -37,7 +36,7 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
     MqttModule.forRoot(MQTT_SERVICE_OPTIONS),
     MatProgressBarModule
   ],
-  providers: [HADataService],
+  providers: [HADataService, GcalService],
   bootstrap: [AppComponent],
   schemas: [ 
     //CUSTOM_ELEMENTS_SCHEMA

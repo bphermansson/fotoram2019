@@ -48,10 +48,13 @@
     </h2>
 
     <p class="subheading-1">
-        <li *ngFor="let item of itemslist">
+        <li *ngFor="let item of empList">
             <hr class="divider">
-            <p>{{ item.start}} - {{ item.end}}</p>
-            <h3>{{ item.summary }}</h3>
+            <p>
+                {{ item.Starttime | date:'d MMM'}}
+                {{ item.Starttime | date:'HH:mm'}} - {{ item.Endtime | date:'HH:mm'}}
+            </p>
+            <h4>{{ item.Summary }}</h4>
             <p>{{ item.line_marker }}</p>
                         
           </li>

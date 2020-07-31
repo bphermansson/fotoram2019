@@ -1,43 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { gcalevents } from './gcalevents';
+ 
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
-import { CONFIG } from '../../assets/settings';
-
-
-@Injectable({
-  providedIn: 'root'
-})
+ 
+@Injectable()
 export class GcalService {
-  constructor(private http: HttpClient) { }
-
+ 
+  gcalUrl: string = "http://192.168.1.15:8080/api/GcalItems/getevents"
+ 
+  constructor(private http: HttpClient) {
+  }
+ 
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      method: 'GET', // GET, POST, PUT, DELETE
+      mode: 'no-cors' // the most important option
     })
   }  
 
-  getGcalEvents(): Observable<gcalevents> {
-    return this.http.get<gcalevents>(CONFIG.gcalUrl)
-    .pipe(
-      retry(1),
-      catchError(this.handleError),
-    )
+  getcalEvents(): Observable<any> {
+    //return this.http.get(this.gcalUrl)
+    var res = this.http.get(this.gcalUrl)
+    //console.log("RES: " + res)
+    return res
   }
-
-    // Error handling 
-    handleError(error) {
-      let errorMessage = '';
-      if(error.error instanceof ErrorEvent) {
-        // Get client-side error
-        errorMessage = error.error.message;
-      } else {
-        // Get server-side error
-        errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      }
-      console.log("Err: " + errorMessage);
-      //window.alert(errorMessage);
-      return throwError(errorMessage);
-   }
+ 
 }

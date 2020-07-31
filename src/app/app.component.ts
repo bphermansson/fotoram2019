@@ -6,10 +6,25 @@ import { interval, Subscription } from 'rxjs';
 import { PictureApiService } from "./shared/picturesGet";
 import { TimeService } from "./shared/time.service";
 import { GcalService} from "./shared/get-gcal-events.service"
+//import { calendarItem } from '../models/googleCalendar.model';
+import { OneItem } from '../models/gcalItems.model';
 import { Component, HostBinding, ɵConsole } from '@angular/core';
-import { Observable } from 'rxjs';
+//import { Observable } from 'rxjs';
 import { TempApiService } from './shared/temp-api.service';
 import { HADataService } from "./shared/hadata.service";
+import {HttpClient} from "@angular/common/http";
+import * as _ from 'lodash';
+//import { map } from 'rxjs/operators';
+
+// Home Assistant web api
+import {
+  getAuth,
+  getUser,
+  callService,
+  createConnection,
+  subscribeEntities,
+  ERR_HASS_HOST_REQUIRED
+} from '../../dist/index.js';
 
 import {
   trigger,
@@ -20,10 +35,22 @@ import {
 } from '@angular/animations';
 
 import { CONFIG } from '../assets/settings';
+import { notEqual } from 'assert';
+import { isNullOrUndefined } from 'util';
+//import { settings } from 'cluster';
 //import { share } from 'rxjs/operators';
 
 var debug = true
 
+/*
+interface Course {
+  startDate: String;
+  summary: String;
+  starttime: String;
+  endtime: String;
+  creator: String;
+}
+*/
 @Component({
   selector: 'app-root',
   // Define aanimations for fade in and out. 
@@ -65,20 +92,31 @@ export class AppComponent {
   picsource = interval(10*1000);  
   currentImage: any;   
   imageDate: any;
-  gcalevents: any = []
   countdown=40;
   pictimer = 40 // 40 // How long to show images
   public showInfo:boolean = false;
   isOpen = true;
-  item: any;
-  summary: any;
-  eventdate: any;
+  
   isVisible = true;
   temp: any;
   lmStatus: string
+  loading: boolean = false;
+  errorMessage;
 
-  private subscription: Subscription;
-  public message: string;
+  /*
+  gcalevents: calendarItem[]
+  item: any;
+  summary: any;
+  eventdate: any;
+  */
+
+  //private subscription: Subscription;
+  //public message: string;
+  public oneItem: OneItem;
+  //public events: any[];
+  
+  empList: Array<OneItem> = [];
+
 
   // Trigger the animation
   toggle() {
@@ -94,10 +132,12 @@ export class AppComponent {
   constructor(    
     public PictureApi: PictureApiService,
     public TimeApi: TimeService,
-    public GcalApi: GcalService,
+    private gcalService: GcalService,
     private apiService: TempApiService,
     public haApi: HADataService,
+    private http:HttpClient
     ) {
+      this.oneItem = new OneItem();
      }
 
 ngOnInit() {
@@ -106,26 +146,73 @@ ngOnInit() {
   this.loadPictures()
   this.getTime();
   this.loadgcalEvents()
-  this.getOutTemp()
+  //this.getOutTemp()
   this.getHaData()
 
   //this.picsubscription = this.picsource.subscribe(picval => this.loadPictures());
 
   const eventsource = interval(3600000);     
   this.eventsubscription = eventsource.subscribe(eventval => this.loadgcalEvents());
-
   const timesource = interval(1000);     
   this.timesubscription = timesource.subscribe(val => this.getTime());
   const temptimersource = interval(60000);     
-  this.tempOutsubscription = temptimersource.subscribe(val => this.getOutTemp()); 
+  //this.tempOutsubscription = temptimersource.subscribe(val => this.getOutTemp()); 
   const hadatasource = interval(10000);     
   this.hasubscription = hadatasource.subscribe(val => this.getHaData()); 
-
 }
 
-itemslist = []  // Array
+//itemslist = []  // Array
+
 line_marker: any
 
+getHAWebApi(){
+  (async () => {
+    let auth;
+    try {
+      auth = await getAuth();
+    } catch (err) {
+      if (err === ERR_HASS_HOST_REQUIRED) {
+        const hassUrl = prompt(
+          "What host to connect to?",
+          "http://192.168.1.10:8123"
+        );
+        if (!hassUrl) return;
+        auth = await getAuth({ hassUrl });
+      } else {
+        alert(`Unknown error: ${err}`);
+        return;
+      }
+    }
+    const connection = await createConnection({ auth });
+  
+    subscribeEntities(connection, entities =>
+      this.renderEntities(connection, entities)
+    )
+    
+    // Clear url if we have been able to establish a connection
+    if (location.search.includes("auth_callback=1")) {
+      history.replaceState(null, "", location.pathname);
+    }
+ 
+    /*
+    // To play from the console
+    window.auth = auth;
+    window.connection = connection;
+    getUser(connection).then(user => {
+      console.log("Logged in as", user);
+      window.user = user;
+      */
+    subscribeEntities(connection, (entities) => console.log("New entities!", entities));
+
+    });
+  }
+  //)
+  //();
+//}
+
+renderEntities(connection, entities) {
+  console.log("renderEntities")
+}
 
 getHaData() {
   // Remember to adjust Home Assistant to allow connections from localhost(cors)
@@ -134,27 +221,22 @@ getHaData() {
     "sensor.emontxv3ehybmp085_temperature",
     "sensor.emontx_uv_light",
     "sensor.gardenhouse_plant_moist",
-    "binary_sensor.lawnmowerincharger",
-    
+    "binary_sensor.lawnmowerincharger", 
   ]
-  let x = {
-    state: "",
-  } 
-let list: string[] = [];
 
   sensors.forEach(havalue => {
     //console.log(havalue)
-
-//    let haResult = this.haApi.getHAData(havalue).subscribe((x : {}) => {
-      //console.log(x)  // All data from one sensor
-//      this.client.fetchUsers().subscribe((users: IUser[]) => {
     this.haApi.getHAData(havalue).subscribe((x: string[]) => {
-      var ent = x.state
-      console.log(havalue + ": " + ent)
+      var ent = x
+      console.log("HAValue: " + havalue + ": " + ent)
       switch(havalue) {
-        case "emontxv3ehybmp085_temperature": 
+        case "sensor.emontxv3ehybmp085_temperature": 
         {
           this.temp = ent
+          console.log("TEMP: " + this.temp)
+          x.forEach(element => {
+            console.log("ent: " + element)            
+          });
           break
         }
         case "binary_sensor.lawnmowerincharger":
@@ -170,7 +252,7 @@ let list: string[] = [];
       //}
   });
   //return haResult
-  return users
+  return "ent"
   })
 }
 
@@ -187,51 +269,62 @@ updateLawnMowerState(lmState)
 }
 
 loadgcalEvents(){
-  return this.GcalApi.getGcalEvents().subscribe((data: {}) => {
-    this.gcalevents = data;
+  this.loading = true;
+  console.log("Get Gcal data");
 
-    console.log("gcal: " + this.gcalevents[0])
-    //console.log("gcal: " + this.gcalevents[0].summary)
-    /*
-    for (var x in this.gcalevents) {
-      //console.log("gcal: " + this.gcalevents[x].summary)
-      var start = new Date (this.gcalevents[x].start) 
-      var startYear = start.getFullYear();
-      var sstartYear = startYear.toString()
-      //var startMonth = start.getMonth() + 1
-      var startMonth = fixZeroes(start, "month")
-      //var sstartMonth = startMonth.toString()
-      var startDay = fixZeroes(start, "day")  // Day with trailing zeroes
-      //var startHour = start.getHours()
-      var startHour = fixZeroes(start, "hour") 
-      //var sstartHour = startHour.toString()
-      var startMin = fixZeroes(start, "minute") // Minutes with trailing zeroes
-    
-      var end = new Date (this.gcalevents[x].end) 
-      var endYear = end.getFullYear();
-      var sendYear = endYear.toString()
-      //var endMonth = end.getMonth() + 1
-      var endMonth = fixZeroes(end, "month")
+    this.errorMessage = "";
+    this.gcalService.getcalEvents()
+      .subscribe(
+        (response) => {                           //next() callback
+          // Here we handle the response from the Google Calender events server. 
+          console.log('response received:' + response.length)
+          var c=0
+          
+          var cts = CONFIG.calsToShow;
+          response.forEach(element => {
+            //console.log("Item " + c + element["Summary"]) // Here we have all elements
+            c++
+            var currentCreator = element["Creatoremail"];
+            if (cts.indexOf(currentCreator) == 0) {
+              let curItem = new OneItem;
+              curItem.Summary = element["Summary"]
+              curItem.Starttime = element["Starttime"]
+              curItem.Endtime = element["Endtime"]
+              curItem.Creator = element["Creator"]
+              curItem.Creatoremail = element["Creatoremail"]
+              curItem.OrganizerDisplayName = element["OrganizerDisplayName"]
 
-      var sendMonth = endMonth.toString()
-      var endDay = fixZeroes(end, "day")  // Day with trailing zeroes
-      var endHour = fixZeroes(end, "hour")
-      //var sendHour = endHour.toString()
-      var endMin = fixZeroes(end, "minute") // Minutes with trailing zeroes
-      var sum = this.gcalevents[x].summary
+              //"Creator":null,"Creatoremail":"hermansson.patrik@gmail.com","OrganizerId":null,"OrganizerDisplayName":null
+              /*
+              All items don't have the same info. Try to collect all relevant events. 
+              */
+              curItem.DisplayName = curItem.Creator;
+              if (isNullOrUndefined(curItem.DisplayName)) {
+                curItem.DisplayName = curItem.OrganizerDisplayName;
+              }
+              if (isNullOrUndefined(curItem.DisplayName)) {
+                curItem.DisplayName = curItem.Creatoremail;
+              }
+              this.empList.push(curItem)
+            }
 
-      let eventObj:any = {}       // https://blog.angular-university.io/typescript-2-type-system-how-does-it-really-work-when-are-two-types-compatible-its-actually-quite-different-than-other-type-systems/
-      eventObj.summary= sum
-      eventObj.start= startYear + startMonth + startDay + " - "  + startHour + ":" + startMin
-      eventObj.end = endHour  + ":" + endMin
-
-      this.itemslist.push(eventObj) 
-      //console.log("item" + this.itemslist[0].summary)
-    }
-    */
-  })
+          }); 
+          this.empList.forEach(element => {
+            console.log(element.Summary + "-" + element.Creator)
+            console.log(element.OrganizerDisplayName)
+          });
+        },
+        (error) => {                              //error() callback
+          console.error('Request failed with error')
+          this.errorMessage = error;
+          this.loading = false;
+        },
+        () => {                                   //complete() callback
+          console.error('Request completed')      //This is actually not needed 
+          this.loading = false; 
+        })
 }
-
+/*
 getOutTemp() {
   // Get data from Home Assistant
   // curl -X GET -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIxYTI3YTgzN2QwYTU0OTA4OTFlMjExZmY0NTcxNDhmMyIsImlhdCI6MTU3MjE4ODc2NiwiZXhwIjoxODg3NTQ4NzY2fQ.j_YgyPqiQKcnJ0RYrjoYhk-VExslATh5GIo98tg6g50" -H "Content-Type: application/json" http://192.168.1.190:8123/api/states/sensor.emontxv3ehyhtu21d_temperature
@@ -242,7 +335,7 @@ getOutTemp() {
     console.log("temp:" + this.tempOut);
   });
 }
-
+*/
 loadPictures() {
   return this.PictureApi.getPictures().subscribe((data: {}) => {
     this.Pictures = data;
