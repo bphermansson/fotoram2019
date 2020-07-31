@@ -125,5 +125,8 @@
       }
     }
   },
-  "defaultProject": "angular-httpclient-app"
+  "defaultProject": "angular-httpclient-app",
+  "cli": {
+    "analytics": "f5e7bbbe-61a1-4e97-a4ef-ed0f1cd7dd2b"
+  }
 }
