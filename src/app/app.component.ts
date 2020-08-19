@@ -15,12 +15,12 @@ import { HADataService } from "./shared/hadata.service";
 import {HttpClient} from "@angular/common/http";
 import * as _ from 'lodash';
 //import { map } from 'rxjs/operators';
-
 // Home Assistant web api
+
 import {
   getAuth,
-  getUser,
-  callService,
+//  getUser,
+//  callService,
   createConnection,
   subscribeEntities,
   ERR_HASS_HOST_REQUIRED
@@ -37,6 +37,7 @@ import {
 import { CONFIG } from '../assets/settings';
 import { notEqual } from 'assert';
 import { isNullOrUndefined } from 'util';
+import { connect } from 'http2';
 //import { settings } from 'cluster';
 //import { share } from 'rxjs/operators';
 
@@ -149,14 +150,11 @@ ngOnInit() {
   //this.getOutTemp()
   this.getHaData()
 
-  //this.picsubscription = this.picsource.subscribe(picval => this.loadPictures());
-
   const eventsource = interval(3600000);     
   this.eventsubscription = eventsource.subscribe(eventval => this.loadgcalEvents());
   const timesource = interval(1000);     
   this.timesubscription = timesource.subscribe(val => this.getTime());
   const temptimersource = interval(60000);     
-  //this.tempOutsubscription = temptimersource.subscribe(val => this.getOutTemp()); 
   const hadatasource = interval(10000);     
   this.hasubscription = hadatasource.subscribe(val => this.getHaData()); 
 }
@@ -165,54 +163,7 @@ ngOnInit() {
 
 line_marker: any
 
-getHAWebApi(){
-  (async () => {
-    let auth;
-    try {
-      auth = await getAuth();
-    } catch (err) {
-      if (err === ERR_HASS_HOST_REQUIRED) {
-        const hassUrl = prompt(
-          "What host to connect to?",
-          "http://192.168.1.10:8123"
-        );
-        if (!hassUrl) return;
-        auth = await getAuth({ hassUrl });
-      } else {
-        alert(`Unknown error: ${err}`);
-        return;
-      }
-    }
-    const connection = await createConnection({ auth });
-  
-    subscribeEntities(connection, entities =>
-      this.renderEntities(connection, entities)
-    )
-    
-    // Clear url if we have been able to establish a connection
-    if (location.search.includes("auth_callback=1")) {
-      history.replaceState(null, "", location.pathname);
-    }
- 
-    /*
-    // To play from the console
-    window.auth = auth;
-    window.connection = connection;
-    getUser(connection).then(user => {
-      console.log("Logged in as", user);
-      window.user = user;
-      */
-    subscribeEntities(connection, (entities) => console.log("New entities!", entities));
 
-    });
-  }
-  //)
-  //();
-//}
-
-renderEntities(connection, entities) {
-  console.log("renderEntities")
-}
 
 getHaData() {
   // Remember to adjust Home Assistant to allow connections from localhost(cors)
@@ -309,10 +260,12 @@ loadgcalEvents(){
             }
 
           }); 
+          /*
           this.empList.forEach(element => {
             console.log(element.Summary + "-" + element.Creator)
             console.log(element.OrganizerDisplayName)
           });
+          */
         },
         (error) => {                              //error() callback
           console.error('Request failed with error')

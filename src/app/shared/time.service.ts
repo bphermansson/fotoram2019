@@ -18,4 +18,6 @@ export class TimeService {
     this.hmtime = formatDate(this.now, "HH:mm", "en" );
     return of(this.hmtime);
   }
+
+  
 }
