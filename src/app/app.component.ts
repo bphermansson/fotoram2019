@@ -6,25 +6,12 @@ import { interval, Subscription } from 'rxjs';
 import { PictureApiService } from "./shared/picturesGet";
 import { TimeService } from "./shared/time.service";
 import { GcalService} from "./shared/get-gcal-events.service"
-//import { calendarItem } from '../models/googleCalendar.model';
 import { OneItem } from '../models/gcalItems.model';
 import { Component, HostBinding, ɵConsole } from '@angular/core';
-//import { Observable } from 'rxjs';
-import { TempApiService } from './shared/temp-api.service';
-import { HADataService } from "./shared/hadata.service";
-import {HttpClient} from "@angular/common/http";
+//import {HttpClient} from "@angular/common/http";
 import * as _ from 'lodash';
-//import { map } from 'rxjs/operators';
-// Home Assistant web api
-
-import {
-  getAuth,
-//  getUser,
-//  callService,
-  createConnection,
-  subscribeEntities,
-  ERR_HASS_HOST_REQUIRED
-} from '../../dist/index.js';
+import { HaData } from './hadata.service';
+//import { TempService } from './temp.service';
 
 import {
   trigger,
@@ -35,26 +22,16 @@ import {
 } from '@angular/animations';
 
 import { CONFIG } from '../assets/settings';
-import { notEqual } from 'assert';
+//import { notEqual } from 'assert';
 import { isNullOrUndefined } from 'util';
-import { connect } from 'http2';
-//import { settings } from 'cluster';
-//import { share } from 'rxjs/operators';
+//import { connect } from 'http2';
+import { _getOptionScrollPosition } from '@angular/material/core';
 
 var debug = true
 
-/*
-interface Course {
-  startDate: String;
-  summary: String;
-  starttime: String;
-  endtime: String;
-  creator: String;
-}
-*/
 @Component({
   selector: 'app-root',
-  // Define aanimations for fade in and out. 
+  // Define animations for fade in and out. 
   animations: [
     trigger('fade', [
       state('visible', style({
@@ -77,19 +54,18 @@ interface Course {
 
 export class AppComponent {
   title = 'angular-httpclient-app';
+  temp = "0"
+  lawnmowerstate
   Pictures: any = [];
   timeNow: any = [];
   piclist: any = [];
-  tempOut: any = [];
   picsubscription: Subscription;
   timesubscription: Subscription;
-  eventsubscription: Subscription;
-  tempOutsubscription: Subscription;
   hasubscription: Subscription;
+  eventsubscription: Subscription;
   c: number=0;
   lblPlayPause = 'Running'
   txtPause = 'Pause'
-  haData: any = [];
   picsource = interval(10*1000);  
   currentImage: any;   
   imageDate: any;
@@ -99,25 +75,12 @@ export class AppComponent {
   isOpen = true;
   
   isVisible = true;
-  temp: any;
   lmStatus: string
   loading: boolean = false;
   errorMessage;
 
-  /*
-  gcalevents: calendarItem[]
-  item: any;
-  summary: any;
-  eventdate: any;
-  */
-
-  //private subscription: Subscription;
-  //public message: string;
-  public oneItem: OneItem;
-  //public events: any[];
-  
+  public oneItem: OneItem;  
   empList: Array<OneItem> = [];
-
 
   // Trigger the animation
   toggle() {
@@ -134,12 +97,14 @@ export class AppComponent {
     public PictureApi: PictureApiService,
     public TimeApi: TimeService,
     private gcalService: GcalService,
-    private apiService: TempApiService,
-    public haApi: HADataService,
-    private http:HttpClient
-    ) {
+    //private http:HttpClient,
+    private haData:  HaData
+    ) 
+    {
       this.oneItem = new OneItem();
-     }
+    }
+
+
 
 ngOnInit() {
   // Start with two pictures
@@ -147,76 +112,36 @@ ngOnInit() {
   this.loadPictures()
   this.getTime();
   this.loadgcalEvents()
-  //this.getOutTemp()
   this.getHaData()
 
   const eventsource = interval(3600000);     
   this.eventsubscription = eventsource.subscribe(eventval => this.loadgcalEvents());
   const timesource = interval(1000);     
   this.timesubscription = timesource.subscribe(val => this.getTime());
-  const temptimersource = interval(60000);     
-  const hadatasource = interval(10000);     
-  this.hasubscription = hadatasource.subscribe(val => this.getHaData()); 
+  const hasource = interval(10000);     
+  this.hasubscription = hasource.subscribe(val => this.getHaData());
 }
-
-//itemslist = []  // Array
 
 line_marker: any
 
+getHaData(): void {
+  console.log("Get HaData")
+  this.temp = this.haData.state
+  this.lawnmowerstate = this.haData.lawnmowerstate
+  class HadataClass {
+    id: string;
+    name: string;
+    last_changed: string
+  }
+  var haData: HadataClass[] = [];
+  haData = this.haData.getHadata();
+  /*
+  console.log("Fetched hadata: " + haData)
 
-
-getHaData() {
-  // Remember to adjust Home Assistant to allow connections from localhost(cors)
-  let sensors: string[] = [ 
-    "sensor.emontxv3ehyoutdoor_humidity",
-    "sensor.emontxv3ehybmp085_temperature",
-    "sensor.emontx_uv_light",
-    "sensor.gardenhouse_plant_moist",
-    "binary_sensor.lawnmowerincharger", 
-  ]
-
-  sensors.forEach(havalue => {
-    //console.log(havalue)
-    this.haApi.getHAData(havalue).subscribe((x: string[]) => {
-      var ent = x
-      console.log("HAValue: " + havalue + ": " + ent)
-      switch(havalue) {
-        case "sensor.emontxv3ehybmp085_temperature": 
-        {
-          this.temp = ent
-          console.log("TEMP: " + this.temp)
-          x.forEach(element => {
-            console.log("ent: " + element)            
-          });
-          break
-        }
-        case "binary_sensor.lawnmowerincharger":
-        {
-          this.updateLawnMowerState(ent);
-        }
-        default: {
-          break
-        }
-      }
-      //for ( var xs in  list) {
-        //console.log("X: " + list)
-      //}
+  haData.forEach(element => {
+    console.log("ElementInComponent:" + element)            
   });
-  //return haResult
-  return "ent"
-  })
-}
-
-updateLawnMowerState(lmState)
-{
-  console.log("lmState: " + lmState)
-  if (lmState=="on") {
-    this.lmStatus = "vilar."
-  }
-  else {
-    this.lmStatus = "jobbar."
-  }
-  
+  */
 }
 
 loadgcalEvents(){
@@ -277,18 +202,7 @@ loadgcalEvents(){
           this.loading = false; 
         })
 }
-/*
-getOutTemp() {
-  // Get data from Home Assistant
-  // curl -X GET -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIxYTI3YTgzN2QwYTU0OTA4OTFlMjExZmY0NTcxNDhmMyIsImlhdCI6MTU3MjE4ODc2NiwiZXhwIjoxODg3NTQ4NzY2fQ.j_YgyPqiQKcnJ0RYrjoYhk-VExslATh5GIo98tg6g50" -H "Content-Type: application/json" http://192.168.1.190:8123/api/states/sensor.emontxv3ehyhtu21d_temperature
 
-  this.apiService.getTempOut().subscribe((data: {})=>{
-    var tempData = data;
-    this.tempOut = tempData['state']
-    console.log("temp:" + this.tempOut);
-  });
-}
-*/
 loadPictures() {
   return this.PictureApi.getPictures().subscribe((data: {}) => {
     this.Pictures = data;
@@ -298,7 +212,7 @@ loadPictures() {
     */
     //console.log(this.c);
     //console.log(this.Pictures);
-    //console.log(this.Pictures.filename)
+    console.log(this.Pictures.filename)
     
     console.log("Load pictures")
 
@@ -347,6 +261,7 @@ loadPictures() {
     //this.countdown = this.pictimer;
   })
 }
+
 getTime() {
   return this.TimeApi.getTime().subscribe((data: {}) => {
     this.timeNow = data;
@@ -365,12 +280,7 @@ getTime() {
       this.loadPictures()
       this.toggle()
       console.log(this.isVisible)
-
     }
-
-    //console.log(this.countdown)
-
-    //console.log("Time: " + this.timeNow);
   })
 }
 

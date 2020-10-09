@@ -36,17 +36,19 @@
         <p>{{timeNow}}</p>
     </h1>
     <h2 class=".mat-h2">
-        <p>Ute: {{tempOut}}C</p>
+        <p>Ute: {{temp}}C</p>
     </h2>
 
-    <p>{{countdown}}</p>
+    <!--<p>{{scountdown}}</p>-->
     <mat-progress-bar mode="determinate" value={{countdown*2.5}}></mat-progress-bar>
-    <p>Gardenhouse: {{gardenhouseMoist}}</p>
-
-    <h2 class=".mat-h2">
-        <p>Tigern {{lmStatus}}</p>
-    </h2>
-
+    <!--<p>Gardenhouse: {{gardenhouseMoist}}</p>-->
+<p></p>
+    <h4 class=".mat-h3">
+        Tigern {{lawnmowerstate}}
+    </h4>
+    <h4 class=".mat-h3">
+        Tvättmaskinen {{washerstate}}
+    </h4>
     <p class="subheading-1">
         <li *ngFor="let item of empList">
             <hr class="divider">

@@ -1,3 +1,7 @@
+https://tutorialedge.net/typescript/angular/angular-websockets-tutorial/
+
+Use this to connect and fetch values from HA
+
 // Inspired by https://www.positronx.io/angular-7-httpclient-http-service/
 
 // Deploy

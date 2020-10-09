@@ -29,7 +29,6 @@
               "src/styles.css"
             ],
             "scripts": [
-              "src/assets/js/homeass.js"
             ]
           },
           "configurations": {
@@ -97,7 +96,6 @@
               "src/styles.css"
             ],
             "scripts": [
-              "src/assets/js/homeass.js"
             ]
           }
         },
