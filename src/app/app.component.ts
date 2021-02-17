@@ -13,6 +13,7 @@ import * as _ from 'lodash';
 import { HaData } from './hadata.service';
 //import { TempService } from './temp.service';
 
+
 import {
   trigger,
   state,
@@ -21,11 +22,9 @@ import {
   transition
 } from '@angular/animations';
 
-import { CONFIG } from '../assets/settings';
-//import { notEqual } from 'assert';
 import { isNullOrUndefined } from 'util';
-//import { connect } from 'http2';
 import { _getOptionScrollPosition } from '@angular/material/core';
+import { JsonConfig, myurls } from '../assets/config';
 
 var debug = true
 
@@ -68,6 +67,7 @@ export class AppComponent {
   txtPause = 'Pause'
   picsource = interval(10*1000);  
   currentImage: any;   
+  currentPath:  any;
   imageDate: any;
   countdown=40;
   pictimer = 40 // 40 // How long to show images
@@ -109,7 +109,7 @@ export class AppComponent {
 ngOnInit() {
   // Start with two pictures
   this.loadPictures()
-  this.loadPictures()
+  //this.loadPictures()
   this.getTime();
   this.loadgcalEvents()
   this.getHaData()
@@ -156,7 +156,7 @@ loadgcalEvents(){
           console.log('response received:' + response.length)
           var c=0
           
-          var cts = CONFIG.calsToShow;
+          var cts = JsonConfig.calsToShow;
           response.forEach(element => {
             //console.log("Item " + c + element["Summary"]) // Here we have all elements
             c++
@@ -193,12 +193,13 @@ loadgcalEvents(){
           */
         },
         (error) => {                              //error() callback
-          console.error('Request failed with error')
-          this.errorMessage = error;
+          console.error('Google calendar service - Request failed with error')
+          console.log(error)
+          //this.errorMessage = error;
           this.loading = false;
         },
         () => {                                   //complete() callback
-          console.error('Request completed')      //This is actually not needed 
+          console.error('Google calendar service - Request completed')      //This is actually not needed 
           this.loading = false; 
         })
 }
@@ -210,36 +211,23 @@ loadPictures() {
     Store old picture path and new picture path to make it possible to rewind to previous image
 
     */
-    //console.log(this.c);
-    //console.log(this.Pictures);
-    console.log(this.Pictures.filename)
-    
-    console.log("Load pictures")
 
-    if (this.piclist.length > 1) {
-      console.log("Overflow")
-      this.piclist.shift()  // Shift out the oldest/first item
-      console.log("No of pics: " + this.piclist.length)
+    this.currentImage = this.Pictures.Completepictureurl
 
-    }
+    console.log(this.currentImage)
 
-    for (var x in this.piclist) {
-
-      console.log("pics:" + x)
-    }
-    
-    //  In config: imageurl: "http://192.168.1.7/newPhotoFrame/",
-    this.currentImage = CONFIG.baseurl + "bilderFotoram/" + this.Pictures.filename
     this.imageDate = this.Pictures.date
     var imageHeight = this.Pictures.height
     var imageWidth = this.Pictures.width
     var imageDate = this.Pictures.imageDate
 
+    /*
     if (debug) {
       console.log(this.currentImage)
       console.log(imageHeight + "-" + imageWidth)
       console.log(this.imageDate)
     }
+    */
     if (this.imageDate=="") {
       console.log("No date/time!")
       this.showInfo=false;
@@ -247,15 +235,10 @@ loadPictures() {
     else {
       this.showInfo=true;
     }
-
-
-    //console.log(this.currentImage)
-    //console.log(this.imageDate)
     
     // Create list
-    this.piclist.push(this.Pictures.filename);
+    //this.piclist.push(this.Pictures.filename);
 
-    console.log("Load pic ok")
 
     // Reset timer
     //this.countdown = this.pictimer;

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
  
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
- 
+import { JsonConfig, myurls } from '../../assets/config';
+
 @Injectable()
 export class GcalService {
  
@@ -21,7 +22,7 @@ export class GcalService {
 
   getcalEvents(): Observable<any> {
     //return this.http.get(this.gcalUrl)
-    var res = this.http.get(this.gcalUrl)
+    var res = this.http.get(myurls.gcalUrl)
     //console.log("RES: " + res)
     return res
   }

@@ -3,8 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { pictures } from './pictures';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { CONFIG } from '../../assets/settings';
-
+import { JsonConfig, myurls } from '../../assets/config';
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +20,8 @@ export class PictureApiService {
   }  
 
   getPictures(): Observable<pictures> {
-    return this.http.get<pictures>(CONFIG.picsurl)
-
+    // Here we want a link to a random image    
+    return this.http.get<pictures>(myurls.jsonData)
     .pipe(
       retry(1),
       catchError(this.handleError)

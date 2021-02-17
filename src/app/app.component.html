@@ -58,17 +58,19 @@
             </p>
             <h4>{{ item.Summary }}</h4>
             <p>{{ item.line_marker }}</p>
+            <p>{{currentImage}}</p>
                         
           </li>
     </p>
 </div>
 <!-- Original
-<div class="picture">
+-->
+    <div class="picture">
    <img src="{{ currentImage }}">
    [@fade]="isVisible ? 'visible' : 'invisible'"
    (click)="toggle()"
 </div>
--->
+<!---->
 
 <!--
 <div [ngStyle]="{'background-image': 'url(' + currentImage + ')'  }"
@@ -81,10 +83,11 @@
 
 
 <!--This displays an image 'fullscreen' without stretching or cutting-->
-<div [ngStyle]="{'background-image': 'url(' + currentImage + ')', 
+<div [ngStyle]="{'background-image': '(' + currentImage + ')', 
   'background-size': 'cover'  }"
   class="picture"
   [@fade]="isVisible ? 'visible' : 'invisible'"
   (@fade.done)="animEnd($event)"
   (click)="toggle()"
   >
+

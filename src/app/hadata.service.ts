@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { webSocket, WebSocketSubject} from 'rxjs/webSocket'; 
-import { JsonConfig } from '../assets/config';
+import { JsonConfig, myurls } from '../assets/config';
 import { authToken } from '../assets/config';
 import { Injectable } from '@angular/core';
 /*
@@ -27,7 +27,7 @@ var HAdataReturn: HadataClass[] = [];
 
 export class HaData {
   title = 'Ang';
-  myWebSocket: WebSocketSubject<any> = webSocket(JsonConfig.haUrl);
+  myWebSocket: WebSocketSubject<any> = webSocket(myurls.haWSUrl);
   msg = ''
   elementState="0"
   entity_id=""
@@ -63,7 +63,7 @@ export class HaData {
       // The whole result:
       //console.log(msg.result)
       msg.result.forEach(element => {
-      //console.log(element)  // See all elements
+      console.log("HA elements " + element)  // See all elements
       // One selected entity:
         if ( element.entity_id == "sensor.emontxv3ehyhtu21d_temperature")
         {
